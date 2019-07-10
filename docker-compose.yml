@@ -1,0 +1,46 @@
+version: '3'
+services:
+
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_DB=metrics
+    ports:
+      - 8086:8086
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+
+  metrics:
+    image: telegraf
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+
+  karmabot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: target/karmabot:local
+    ports:
+      - 5000:5000
+    cap_add:
+      - ALL
+    environment:
+      - METRICS_URI=tcp://metrics:8094
+      - METRICS_HTTP_URI=http://user:password@influxdb:8086?db=metrics
+      - FAKE_SLACK=True
+      - RUNTIME_LOG_LEVEL=debug
+      - LOG_LEVEL=DEBUG
+      - MONGODB=mongodb://mongo:27017/
+      - VERIFICATION_TOKEN=v_token
+      - ACCESS_T123456=oauth_token
+      - BOT_T123456=b_token
+

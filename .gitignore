@@ -1,0 +1,5 @@
+*.pyc
+pybot.egg-info
+kubernetes/secrets.yml
+.idea/
+venv
