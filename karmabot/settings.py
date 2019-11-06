@@ -17,7 +17,7 @@ from flask import current_app
 import hvac
 from datetime import datetime
 
-USE_VAULT = os.environ.get('USE_VALUT', "False").lower() in ['true', '1', 't', 'y', 'yes']
+USE_VAULT = os.environ.get('USE_VAULT', "False").lower() in ['true', '1', 't', 'y', 'yes']
 vault = None
 vault_base_path = None
 
