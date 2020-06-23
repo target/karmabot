@@ -18,7 +18,7 @@ import hvac
 from datetime import datetime
 
 USE_VAULT = os.environ.get('USE_VAULT', "False").lower() in ['true', '1', 't', 'y', 'yes']
-current_app.logger.debug(f"DEBUG: USE_VAULT: ({os.environ.get('USE_VAULT')},{USE_VAULT})")
+current_app.logger.debug(f"DEBUG: USE_VAULT: ({os.environ.get('USE_VAULT','')},{USE_VAULT})")
 vault = None
 vault_base_path = None
 
