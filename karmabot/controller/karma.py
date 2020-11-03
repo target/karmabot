@@ -74,6 +74,10 @@ class KarmaController(object):
             log_metrics('karmabot_command', {"command": "none"}, 'count', 1)
             return self.cmd_karma(command)
 
+        # this needs to be checked before `if args[0] == "top"`
+        if ' '.join(command['text'].split()) == 'top channel members':
+            return self.get_top_channel_members(command)
+
         args = command['text'].split()
         if args[0] == "stats":
             log_metrics('karmabot_command', {"command": "stats"}, 'count', 1)
@@ -829,3 +833,41 @@ class KarmaController(object):
             message['channel'] = command['event']['channel']
             message['response_type'] = ''
             slack_client.post_attachment(command['team_id'], message)
+
+    def get_top_channel_members(self, command):
+        current_app.logger.debug('-- get_top_channel_members --')
+        channel_members = slack_client.get_all_channel_members(command['team_id'], command['channel_id'])
+        current_app.logger.debug(f"channel_members: {channel_members}")
+        slack_client.post_message(command['team_id'], command['channel_id'], f"members in channel: {len(channel_members)}")
+
+        # collection = self.mongodb[command['team_id']]
+
+        # pipeline = [
+        #     {"$group": {"_id": {"type": "$type", "subject": "$subject"}, "total": {"$sum": "$quantity"}}},
+        #     {"$sort": {"total": direction}},
+        #     {"$limit": limit}
+        # ]
+        # pipeline.insert(0, {"$match": {"$or": [
+        #     {"type": "user"},
+        #     {"subject": "<user-id>"}
+        # ]}})
+        # r = collection.aggregate(pipeline)
+
+        # pipeline = [
+        #     {
+        #         "$match": {
+        #             "subject": subject,
+        #             "type": ktype
+        #         }
+        #     },
+        #     {
+        #         "$group": {
+        #             "_id": "subject",
+        #             "total": {
+        #                 "$sum": "$quantity"
+        #             }
+        #         }
+        #     }
+        # ]
+
+        # results = collection.aggregate(pipeline)

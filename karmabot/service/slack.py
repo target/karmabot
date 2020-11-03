@@ -596,3 +596,42 @@ def get_usergroups(workspace):
     if response['ok']:
         return response['usergroups']
     return []
+
+
+def get_channel_members(workspace, channel, cursor):
+    token = settings.get_bot_token(workspace)
+    if not token:
+        current_app.logger.warning(f"Requested token for workspace {workspace} but found none")
+        return None
+    headers = {
+        'User-Agent': f'karmabot/{karmabot.__version__}',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': f"Bearer {token}"
+    }
+    result = urlfetch.post(
+        url="https://slack.com/api/conversations.members?channel=%s&cursor=%s&limit=1000" % (channel, cursor),
+        headers=headers
+    )
+    return result.json
+
+
+def get_all_channel_members(workspace, channel):
+    next_cursor = ""
+    r = get_channel_members(workspace, channel, next_cursor)
+
+    if not r['ok']:
+        return []
+
+    members = []
+    members.extend(r['members'])
+    next_cursor = r['response_metadata']['next_cursor']
+    while next_cursor:
+        r = get_channel_members(channel, next_cursor)
+        if not r['ok']:
+            return []
+        members.extend(r['members'])
+        next_cursor = r['response_metadata']['next_cursor']
+        get_channel_members(channel, next_cursor)
+
+    current_app.logger.debug(f"members: {members}")
+    return members
