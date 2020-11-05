@@ -36,7 +36,7 @@ class KarmaController(object):
 
         current_app.logger.debug(f"{eventw['event']['type']}")
         if eventw['event']['type'] != 'message':
-            current_app.logger.warning(f"Ignoring unknown event type")
+            current_app.logger.warning("Ignoring unknown event type")
             return
 
         if 'user' in eventw['event']:
@@ -50,7 +50,7 @@ class KarmaController(object):
                 return
         else:
             # Not a message from a user; ignore bots, etc
-            current_app.logger.info(f"No user provided in the event")
+            current_app.logger.info("No user provided in the event")
             return
         self.karma_it(eventw, rlc)
         return
@@ -73,6 +73,10 @@ class KarmaController(object):
         if not command['text']:
             log_metrics('karmabot_command', {"command": "none"}, 'count', 1)
             return self.cmd_karma(command)
+
+        # this needs to be checked before `if args[0] == "top"`
+        if ' '.join(command['text'].split()) == 'top channel members':
+            return self.get_top_channel_members(command)
 
         args = command['text'].split()
         if args[0] == "stats":
@@ -112,7 +116,7 @@ class KarmaController(object):
 
         else:
             # Not a message from a user; ignore bots, etc
-            current_app.logger.debug(f"Got a mention without a user. Ignoring.")
+            current_app.logger.debug("Got a mention without a user. Ignoring.")
             return
         text = eventw['event']['text'].split(' ', 1)  # remove the `@user` mention
         eventw['text'] = text[1]  # Store the text to mimic the 'command' object
@@ -829,3 +833,36 @@ class KarmaController(object):
             message['channel'] = command['event']['channel']
             message['response_type'] = ''
             slack_client.post_attachment(command['team_id'], message)
+
+    def get_top_channel_members(self, command):
+        channel_members = slack_client.get_all_channel_members(command['team_id'], command['channel_id'])
+        current_app.logger.debug(f"channel_members: {channel_members}")
+
+        collection = self.mongodb[command['team_id']]
+        q = [{"subject": uid} for uid in channel_members]
+        pipeline = [
+            {"$match": {"$or": q}},
+            {"$group": {"_id": {"type": "$type", "subject": "$subject"}, "total": {"$sum": "$quantity"}}},
+            {"$sort": {"total": -1}},
+            {"$limit": 10}
+        ]
+        results = collection.aggregate(pipeline)
+        top_members = []
+        for u in results:
+            top_members.append(f"{u['total']} <@{u['_id']['subject']}>")
+        message = {
+            'response_type': 'ephemeral',
+            'attachments': [
+                {
+                    "color": settings.KARMA_COLOR,
+                    "fields": [
+                        {
+                            "title": "Top User Karma for this Channel",
+                            "value": '\n'.join(top_members),
+                            "short": False
+                        }
+                    ]
+                }
+            ]
+        }
+        self.respond(message, command)

@@ -17,6 +17,8 @@ from flask import current_app
 import hvac
 from datetime import datetime
 
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
+
 USE_VAULT = os.environ.get('USE_VAULT', "False").lower() in ['true', '1', 't', 'y', 'yes']
 vault = None
 vault_base_path = None
