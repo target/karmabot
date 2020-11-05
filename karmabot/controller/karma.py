@@ -849,5 +849,20 @@ class KarmaController(object):
         results = collection.aggregate(pipeline)
         top_members = []
         for u in results:
-            top_members.append(f"uid: {u['_id']['subject']} has {u['total']} karma")
-        slack_client.post_message(command['team_id'], command['channel_id'], '\n'.join(top_members))
+            top_members.append(f"{u['total']} <@{u['_id']['subject']}>")
+        message = {
+            'response_type': 'ephemeral',
+            'attachments': [
+                {
+                    "color": settings.KARMA_COLOR,
+                    "fields": [
+                        {
+                            "title": "Top User Karma for this Channel",
+                            "value": '\n'.join(top_members),
+                            "short": False
+                        }
+                    ]
+                }
+            ]
+        }
+        self.respond(message, command)
