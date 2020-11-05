@@ -413,6 +413,7 @@ class KarmaController(object):
                              "`/karma top groups` - Show the top 10 groups\n"
                              "`/karma top channels` - Show the top 10 channels\n"
                              "`/karma top things` - Show the top 10 things\n"
+                             "`/karma top channel members` - Show the top 10 members of a channel\n"
                              "`/karma stats` - Show some interesting statstics about Karma\n"
                              "`/karma stats thing` - Show some interesting statstics about `thing`\n")
                 }
