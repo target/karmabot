@@ -36,7 +36,7 @@ class KarmaController(object):
 
         current_app.logger.debug(f"{eventw['event']['type']}")
         if eventw['event']['type'] != 'message':
-            current_app.logger.warning(f"Ignoring unknown event type")
+            current_app.logger.warning("Ignoring unknown event type")
             return
 
         if 'user' in eventw['event']:
@@ -50,7 +50,7 @@ class KarmaController(object):
                 return
         else:
             # Not a message from a user; ignore bots, etc
-            current_app.logger.info(f"No user provided in the event")
+            current_app.logger.info("No user provided in the event")
             return
         self.karma_it(eventw, rlc)
         return
@@ -116,7 +116,7 @@ class KarmaController(object):
 
         else:
             # Not a message from a user; ignore bots, etc
-            current_app.logger.debug(f"Got a mention without a user. Ignoring.")
+            current_app.logger.debug("Got a mention without a user. Ignoring.")
             return
         text = eventw['event']['text'].split(' ', 1)  # remove the `@user` mention
         eventw['text'] = text[1]  # Store the text to mimic the 'command' object
