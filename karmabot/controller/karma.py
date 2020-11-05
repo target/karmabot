@@ -835,39 +835,19 @@ class KarmaController(object):
             slack_client.post_attachment(command['team_id'], message)
 
     def get_top_channel_members(self, command):
-        current_app.logger.debug('-- get_top_channel_members --')
         channel_members = slack_client.get_all_channel_members(command['team_id'], command['channel_id'])
         current_app.logger.debug(f"channel_members: {channel_members}")
-        slack_client.post_message(command['team_id'], command['channel_id'], f"members in channel: {len(channel_members)}")
 
-        # collection = self.mongodb[command['team_id']]
-
-        # pipeline = [
-        #     {"$group": {"_id": {"type": "$type", "subject": "$subject"}, "total": {"$sum": "$quantity"}}},
-        #     {"$sort": {"total": direction}},
-        #     {"$limit": limit}
-        # ]
-        # pipeline.insert(0, {"$match": {"$or": [
-        #     {"type": "user"},
-        #     {"subject": "<user-id>"}
-        # ]}})
-        # r = collection.aggregate(pipeline)
-
-        # pipeline = [
-        #     {
-        #         "$match": {
-        #             "subject": subject,
-        #             "type": ktype
-        #         }
-        #     },
-        #     {
-        #         "$group": {
-        #             "_id": "subject",
-        #             "total": {
-        #                 "$sum": "$quantity"
-        #             }
-        #         }
-        #     }
-        # ]
-
-        # results = collection.aggregate(pipeline)
+        collection = self.mongodb[command['team_id']]
+        q = [{"subject": uid} for uid in channel_members]
+        pipeline = [
+            {"$match": {"$or": q}},
+            {"$group": {"_id": {"type": "$type", "subject": "$subject"}, "total": {"$sum": "$quantity"}}},
+            {"$sort": {"total": -1}},
+            {"$limit": 10}
+        ]
+        results = collection.aggregate(pipeline)
+        top_members = []
+        for u in results:
+            top_members.append(f"uid: {u['_id']['subject']} has {u['total']} karma")
+        slack_client.post_message(command['team_id'], command['channel_id'], '\n'.join(top_members))

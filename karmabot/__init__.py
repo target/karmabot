@@ -42,7 +42,7 @@ def create_app():
     app.register_blueprint(slack)
     app.register_blueprint(health)
 
-    app.logger.setLevel(app.config.get("LOG_LEVEL", "DEBUG"))
+    app.logger.setLevel(app.config.get("LOG_LEVEL", "WARNING"))
 
     app.config['EXECUTOR_PROPAGATE_EXCEPTIONS'] = True
     executor.init_app(app)
