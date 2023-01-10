@@ -1,6 +1,6 @@
 Flask==2.2.2
 urlfetch==1.2.2
-pymongo==4.3.3
+pymongo==3.13.0
 influxdb==5.3.1
 python-json-logger==2.0.4
 flask-executor==1.0.0
