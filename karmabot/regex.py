@@ -30,7 +30,7 @@ squoted3_thing_re = re.compile(r'\u201c(?P<sqthing3>[^\n\u201d]+)\u201d')
 # double low-9/high-rev 9 quote
 squoted4_thing_re = re.compile(r'\u201e(?P<sqthing4>[^\n\u201f]+)\u201f')
 # @anna++ -> <@UABC1234>++ or <@UABC1234|anna>
-user_re = re.compile(r'<@(?P<user>[A-Z_.0-9|]+)(?:\|[^>]+)?>')
+user_re = re.compile(r'<@(?P<user>[A-Z_.0-9]+)(?:\|[^>]+)?>')
 # #beth++ -> <#CDE2345|beth>++
 channel_re = re.compile(r'<#(?P<channel>[A-Z_.0-9]+)\|(?:[^\s]+)>')
 # @charming-admins -> <!subteam^CDE3456|charming-admins>
