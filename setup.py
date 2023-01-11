@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='karmabot',
-    version='1.0.2',
+    version='1.0.3',
     description='A Slack bot to track Karma points',
     author='Jay Kline',
     author_email='jay.kline@target.com',
